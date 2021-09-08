@@ -102,3 +102,20 @@ dist
 
 # TernJS port file
 .tern-port
+
+
+# Webstorm, JetBrains IDE
+**/.idea/
+# Microsoft Visual Studio
+**/.vscode/
+# NetBeans
+**/nbproject/
+**/.netbeans/
+
+### NodeJS specific files and directories ###
+**/node_modules/
+
+### Project specific files and directories ###
+**/build/
+**/build-webform/
+**/coverage/**
