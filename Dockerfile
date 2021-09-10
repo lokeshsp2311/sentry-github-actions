@@ -6,8 +6,6 @@ WORKDIR /usr/share/nginx/html
 # Remove default nginx static assets
 RUN rm -rf ./*
 
-RUN mkdir form
-
 # Copy static assets over
 COPY ./build ./
 COPY ./nginx/* /etc/nginx/conf.d/

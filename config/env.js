@@ -40,6 +40,7 @@ dotenvFiles.forEach(dotenvFile => {
   }
 });
 
+console.log(process.env);
 // We support resolving modules according to `NODE_PATH`.
 // This lets you use absolute paths in imports inside large monorepos:
 // https://github.com/facebook/create-react-app/issues/253.
@@ -90,6 +91,7 @@ function getClientEnvironment(publicUrl) {
         // which is why it's disabled by default.
         // It is defined here so it is available in the webpackHotDevClient.
         FAST_REFRESH: process.env.FAST_REFRESH !== 'false',
+        SENTRY_ENV: process.env.SENTRY_ENV,
       }
     );
   // Stringify all values so we can feed into webpack DefinePlugin
@@ -100,6 +102,9 @@ function getClientEnvironment(publicUrl) {
     }, {}),
   };
 
+  console.log("raw", raw);
+  console.log("stringified", stringified);
+  setTimeout(() => { }, 50000)
   return { raw, stringified };
 }
 

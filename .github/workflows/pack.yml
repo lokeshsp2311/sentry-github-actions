@@ -1,0 +1,94 @@
+name: build-package
+
+on:
+  push:
+    branches:
+      - master
+      - develop
+    tags:
+      - v*
+
+jobs:
+  build:
+    name: Build app to package
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+      - name: Node Setup
+        uses: actions/setup-node@v1
+        with:
+          node-version: '12.x'
+#      - name: Cache node modules
+#        uses: actions/cache@v2
+#        env:
+#            cache-name: cache-node-modules
+#        with:
+#          # npm cache files are stored in `~/.npm` on Linux/macOS
+#          path: |
+#            ~/.npm
+#            **/node_modules
+#            key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+#            restore-keys: |
+#              ${{ runner.os }}-build-${{ env.cache-name }}-
+#              ${{ runner.os }}-build-
+#              ${{ runner.os }}-
+      - name: Install Dependencies
+        run: npm install
+      # - name: Install Doppler
+      #   run: |
+      #     #sudo (curl -Ls https://cli.doppler.com/install.sh || wget -qO- https://cli.doppler.com/install.sh) | sh
+      #     # Install pre-reqs
+      #     sudo apt-get update && sudo apt-get install -y apt-transport-https ca-certificates curl gnupg
+
+      #     # Add Doppler's GPG key
+      #     curl -sLf --retry 3 --tlsv1.2 --proto "=https" 'https://packages.doppler.com/public/cli/gpg.DE2A7741A397C129.key' | sudo apt-key add -
+
+      #     # Add Doppler's apt repo
+      #     echo "deb https://packages.doppler.com/public/cli/deb/debian any-version main" | sudo tee /etc/apt/sources.list.d/doppler-cli.list
+
+      #     # Fetch and install latest doppler cli
+      #     sudo apt-get update && sudo apt-get install doppler
+      - name: Doppler Setup prod tags
+        if: startsWith(github.ref, 'refs/tags/v') # if tag
+        run: doppler setup --token=${{ secrets.DOPPLER_TOKEN_FRONTEND_PROD }} --no-prompt
+      - name: Doppler Setup prod
+        if: github.ref == 'refs/heads/master' # if branch is master
+        run: doppler setup --token=${{ secrets.DOPPLER_TOKEN_FRONTEND_PROD }} --no-prompt
+      - name: Doppler Setup QA
+        if: github.ref == 'refs/heads/develop' # if branch is develop
+        run: doppler setup --token=${{ secrets.DOPPLER_TOKEN_FRONTEND_QA }} --no-prompt
+      - name: Build
+        run: npm run build
+      - name: Log into registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
+      - name: Build Image
+        run: docker build . --file Dockerfile --tag image
+      - name: Push image
+        run: |
+          # Extract Image name from "name" of package.json
+          IMAGE_NAME=$(jq -r '.name' package.json)
+          echo IMAGE_NAME=$IMAGE_NAME
+          IMAGE_ID=docker.pkg.github.com/${{ github.repository }}/$IMAGE_NAME
+          # Strip git ref prefix from version
+          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+          # Strip "v" prefix from tag name
+          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+          # Use Docker `latest` tag convention
+          # [ "$VERSION" == "master" ] && VERSION=latest
+          echo IMAGE_ID=$IMAGE_ID
+          echo VERSION=$VERSION
+          docker tag image $IMAGE_ID:$VERSION
+          docker push $IMAGE_ID:$VERSION
+
+#      # Deployment action - It will ssh onto server and run deploy script
+#      - name: Deploy on server
+#        uses: appleboy/ssh-action@master
+#        with:
+#          host: ${{ secrets.REMOTE_HOST }}
+#          username: ${{ secrets.REMOTE_USER }}
+#          key: ${{ secrets.SERVER_SSH_KEY }}
+#          script: |
+#            VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+#            # [ "$VERSION" == "master" ] && VERSION=latest
+#            sudo ./deploy.sh --tag=$VERSION --repo="${{ github.repository }}"
