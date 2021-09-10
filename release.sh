@@ -9,11 +9,6 @@ export SENTRY_LOG_LEVEL="info"
 #export SENTRY_PROJECT=$(grep SENTRY_PROJECT .env | cut -d '=' -f2 | sed 's/"//g')
 #SENTRY_ENV=$(grep SENTRY_ENV .env | cut -d '=' -f2 | sed 's/"//g') # Getting SENTRY_ENV defined in .env
 
-export SENTRY_ENV=dev
-export SENTRY_AUTH_TOKEN=a50c331f121847cb89b840376e435cf1cfcb3e3e87cc41699f40133b4e215a46
-export SENTRY_ORG=pc-dev
-export SENTRY_PROJECT=pc-dev-1
-
 echo $SENTRY_RELEASE;
 echo $SENTRY_ENV
 
