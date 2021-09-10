@@ -24,9 +24,10 @@ jobs:
       - name: adding keys
         run: | 
           echo ${{ github.actor }}
-          echo ${{ secrets.SENTRY_ENV }}
-          echo ${{ secrets.SENTRY_ORG   }}
-          echo ${{ secrets.SENTRY_PROJECT }}
+          export SENTRY_ENV=$(echo ${{ secrets.SENTRY_ENV }})
+          export SENTRY_ORG=$(echo ${{ secrets.SENTRY_ORG }})
+          export SENTRY_PROJECT=$(echo ${{ secrets.SENTRY_PROJECT }})
+          echo $SENTRY_PROJECT
       - name: Build
         run: npm run build
       - name: Log into registry
