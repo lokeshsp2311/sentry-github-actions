@@ -12,20 +12,21 @@ jobs:
   version:
     name: Bumping Version
     runs-on: ubuntu-latest
-    if: "!startsWith(github.event.head_commit.message, 'Verision bumped')"
+    if: ${{ !startsWith(github.event.head_commit.message, 'Version bumped') }}
     steps:
       - uses: actions/checkout@v2
         with:
           token: ${{ secrets.GIT_TOKEN }}
       - run: git config --global user.name 'Version Bump'
       - run: git config --global user.email 'vb@githubaction.in'
-      - run: npm version patch -m "Verision bumped to %s"
+      - run: npm version patch -m "Version bumped to %s"
       - run: git push
 
   build:
     name: Build app to package
     runs-on: ubuntu-latest
     needs: [version]
+    if: ${{ startsWith(github.event.head_commit.message, 'Version bumped') }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
