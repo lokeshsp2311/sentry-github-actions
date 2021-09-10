@@ -22,14 +22,14 @@ jobs:
       - name: Install Dependencies
         run: npm ci
       - name: adding keys
-        run: | 
+        run: |
           echo ${{ github.actor }}
           export SENTRY_ENV=$(echo ${{ secrets.SENTRY_ENV }})
           export SENTRY_ORG=$(echo ${{ secrets.SENTRY_ORG }})
           export SENTRY_PROJECT=$(echo ${{ secrets.SENTRY_PROJECT }})
           echo $SENTRY_PROJECT
       - name: Build
-        run: npm run build
+        run: npm run sentry:release
       - name: Log into registry
         run: echo "${{ secrets.GIT_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
       - name: Build Image
