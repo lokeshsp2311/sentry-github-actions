@@ -10,7 +10,9 @@ on:
 
 jobs:
   version:
+    name: Bumping Version
     runs-on: ubuntu-latest
+    if: "!startsWith(github.event.head_commit.message, 'Verision bumped')"
     steps:
       - uses: actions/checkout@v2
         with:
