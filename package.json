@@ -72,7 +72,7 @@
   },
   "scripts": {
     "start": "node scripts/start.js",
-    "build": "node scripts/build.js",
+    "build": "APP_VERSION=$npm_package_version node scripts/build.js",
     "sentry:release": "(export SENTRY_RELEASE=$(npx sentry-cli releases propose-version); ./release.sh)"
   },
   "eslintConfig": {
