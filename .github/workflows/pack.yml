@@ -9,6 +9,17 @@ on:
       - v*
 
 jobs:
+  version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.GIT_TOKEN }}
+      - run: git config --global user.name 'Version Bump'
+      - run: git config --global user.email 'vb@githubaction.in'
+      - run: npm version patch -m "Verision bumped to %s"
+      - run: git push
+
   build:
     name: Build app to package
     runs-on: ubuntu-latest
